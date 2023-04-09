@@ -6,7 +6,7 @@
 /*   By: rmerzak <rmerzak@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 12:16:44 by rmerzak           #+#    #+#             */
-/*   Updated: 2023/04/08 14:07:49 by rmerzak          ###   ########.fr       */
+/*   Updated: 2023/04/09 23:35:43 by rmerzak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,10 @@
 #include <string.h>
 #include <sys/time.h>
 #include <poll.h>
+#include <vector>
+#include <fcntl.h>
+#include <netinet/tcp.h>
+#include <iostream>
 #include "../includes/Definition.hpp"
 
 class Server
@@ -27,6 +31,7 @@ class Server
 private:
     unsigned short int port;
     std::string password;
+    std::vector<pollfd> poolFdClients;
 
 public:
     Server();
@@ -38,4 +43,6 @@ public:
     void setPassword(std::string pass);
     int initServer();
     void runServer();
+    void		recvMsg( int fd );
+	void		sendMsg( int fd, std::string msg );
 };
