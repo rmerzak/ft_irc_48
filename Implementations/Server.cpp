@@ -6,14 +6,14 @@
 /*   By: rmerzak <rmerzak@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 12:17:12 by rmerzak           #+#    #+#             */
-/*   Updated: 2023/04/13 22:14:16 by rmerzak          ###   ########.fr       */
+/*   Updated: 2023/04/13 23:36:49 by rmerzak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Server.hpp"
 Server::Server(unsigned short int port, std::string pass)
 {
-    if(port < 0 || port > 65513)
+    if(port < 0 || port > 6669)
         PORT_EXCEPTION;
     this->port = port;
     this->password = pass;
@@ -59,8 +59,10 @@ int Server::initServer() {
 
     /// loop through all the results and bind to the first we can
 
-    for (p = res; p; p = p->ai_next) {
-        if ((serverSocket_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
+
+
+   for (p = res; p; p = p->ai_next) {
+       if ((serverSocket_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
             perror("Error server Side : socket");
             continue;
         }
@@ -69,30 +71,22 @@ int Server::initServer() {
             perror("Error server Side : bind");
             continue;
         }
-        break; // if we get here, we must have connected successfully, and successfully binded the socket
+        break;
     }
-    if (p == NULL)
-        return -1;
-    freeaddrinfo(res); // all done with this structure
     if (listen(serverSocket_fd, MAX_CLIENTS) == -1) {
-        perror("Error server Side : listen");
         return -1;
     }
-
     /// set the socket to non blocking
 
-    int flags = fcntl(serverSocket_fd, F_GETFL, 0);
-    if(flags == -1)
+    if(fcntl(serverSocket_fd, F_SETFL, O_NONBLOCK) == -1)
         return -1;
-    if(fcntl(serverSocket_fd, F_SETFL, flags | O_NONBLOCK) == -1)
-        return -1;
-
     // disable the Nagle algorithm
 
     int opt = 1;
     if (setsockopt(serverSocket_fd, IPPROTO_TCP, TCP_NODELAY, (char *)&opt, sizeof(opt)) < 0)
         return -1;
 
+     // add the server socket to the pool of clients
     return serverSocket_fd;
 }
 
@@ -100,11 +94,12 @@ int Server::initServer() {
 
 void Server::runServer(void) {
     // init the server
+
     int serverSocket_fd = this->initServer();
-    if(serverSocket_fd == -1)
-        return;
-    poolFdClients.push_back({serverSocket_fd, POLLIN, 0}); // add the server socket to the pool of clients
-    printf("Server is running on port %d", this->port);
+    poolFdClients.push_back({serverSocket_fd, POLLIN , 0});
+    printf("%d \n",serverSocket_fd);
+
+    printf("Server is running on port %d\n", this->port);
     while(true) {
         // poll the pool of clients
         int pollResult = poll(poolFdClients.data(), poolFdClients.size(), -1);
