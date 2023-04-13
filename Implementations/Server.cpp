@@ -6,17 +6,17 @@
 /*   By: rmerzak <rmerzak@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 12:17:12 by rmerzak           #+#    #+#             */
-/*   Updated: 2023/04/09 23:35:35 by rmerzak          ###   ########.fr       */
+/*   Updated: 2023/04/13 22:14:16 by rmerzak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Server.hpp"
 Server::Server(unsigned short int port, std::string pass)
 {
-    if(port < 66660 || port > 66669)
+    if(port < 0 || port > 65513)
         PORT_EXCEPTION;
     this->port = port;
-    this->password=pass;
+    this->password = pass;
 }
 
 Server::~Server() { }
@@ -59,7 +59,7 @@ int Server::initServer() {
 
     /// loop through all the results and bind to the first we can
 
-    for (p = res; p != NULL; p = p->ai_next) {
+    for (p = res; p; p = p->ai_next) {
         if ((serverSocket_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
             perror("Error server Side : socket");
             continue;
