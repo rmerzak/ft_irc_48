@@ -12,6 +12,7 @@ OBJ = $(SRC:.cpp=.o)
 
 $(NAME) : $(OBJ)
 	$(CC) $(CFLAGS) -o $(NAME) $(OBJ)
+	make clean
 
 all : $(NAME)
 
