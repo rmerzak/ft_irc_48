@@ -6,7 +6,7 @@
 /*   By: rmerzak <rmerzak@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 12:17:12 by rmerzak           #+#    #+#             */
-/*   Updated: 2023/04/13 23:36:49 by rmerzak          ###   ########.fr       */
+/*   Updated: 2023/04/15 22:38:54 by rmerzak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,7 @@ void Server::runServer(void) {
                     if (clientSocket_fd == -1) {
                         perror("Error server Side : accept");
                     } else {
-                        printf("New connection from %s:%d", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
+                        std::cout<<"New connection from "<<inet_ntoa(clientAddr.sin_addr)<<":"<<ntohs(clientAddr.sin_port)<<std::endl;
                         poolFdClients.push_back({clientSocket_fd, POLLIN, 0});
                     }
                 } else {
@@ -157,12 +157,12 @@ void Server::recvMsg(int fd) {
             std::cout << "Connection closed by client" << std::endl;
         else
            std::cout << "recv error on socket " << fd << ": " << strerror(errno) << std::endl;
-    close(fd);
+        close(fd);
     //must remove the clientfd from the pool of clients
     //poolFdClients.erase(std::remove(poolFdClients.begin(), poolFdClients.end(), fd), poolFdClients.end());
     } else {
         std::cout << "Received message from client " << fd << ": " << buffer << std::endl;
-       // poolFdClients[fd].events |= POLLOUT;
+        poolFdClients[fd].events |= POLLOUT;
     }
 }
 

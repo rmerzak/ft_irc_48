@@ -6,7 +6,7 @@
 /*   By: rmerzak <rmerzak@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 13:40:54 by rmerzak           #+#    #+#             */
-/*   Updated: 2023/04/09 23:25:09 by rmerzak          ###   ########.fr       */
+/*   Updated: 2023/04/15 22:44:20 by rmerzak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,20 @@
 
 
 /// VARIABLES
-
+#include <string>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <stdio.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/time.h>
+#include <poll.h>
+#include <vector>
+#include <fcntl.h>
+#include <netinet/tcp.h>
+#include <iostream>
 #define MAX_CLIENTS 10
 #define MAX_MSG_SIZE 512
 
@@ -27,3 +40,4 @@
 #define BIND_EXCEPTION THROW_EXCEPTION("Failed to bind socket to address and port")
 #define LISTEN_EXCEPTION THROW_EXCEPTION("Failed to start listening on socket.")
 #define GETADDRINFO_EXCEPTION THROW_EXCEPTION("Failed to get address info.")
+#define GetAddrInfoException THROW_EXCEPTION("Failed to get address info.")
