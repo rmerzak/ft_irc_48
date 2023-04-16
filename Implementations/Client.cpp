@@ -24,6 +24,7 @@ Client::Client(int fd)
 Client::~Client()
 {
 }
+Client::Client(){}
 void Client::setClientSocket_fd(int clientFd) {
     this->clientSocket_fd = clientFd;
 }
