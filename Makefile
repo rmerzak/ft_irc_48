@@ -4,9 +4,8 @@ CC = c++
 
 CFLAGS = -Wall -Wextra -Werror -std=c++98
 
-HEADER = ./includes/Server.hpp ./includes/Definition.hpp
-
-SRC = main.cpp ./Implementations/Server.cpp
+HEADER = ./includes/Server.hpp ./includes/Definition.hpp ./includes/Client.hpp
+SRC = main.cpp ./Implementations/Server.cpp ./Implementations/Client.cpp
 
 OBJ = $(SRC:.cpp=.o)
 

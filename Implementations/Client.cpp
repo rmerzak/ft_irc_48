@@ -16,10 +16,10 @@
 Client::Client(int fd)
 {
     this->clientSocket_fd = fd;
-    this->nickname = "nickname";
-    this->username = "username";
-    this->realname = "realname";
-    this->hostname = "hostname";
+    this->nickname = "default";
+    this->username = "default";
+    this->realname = "default";
+    this->hostname = "default";
 }
 Client::~Client()
 {
@@ -54,4 +54,8 @@ std::string Client::getRealname(void) {
 }
 std::string Client::getUsername(void) {
     return this->username;
+}
+void Client::printClientInfo(void) {
+    std::cout << "nickname: " << this->nickname << "username: " << this->username << "realname: " << this->realname << "hostname: " << this->hostname;
+    std::cout << " clientSocket_fd: " << this->clientSocket_fd << std::endl;
 }

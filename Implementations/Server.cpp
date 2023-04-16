@@ -6,7 +6,7 @@
 /*   By: rmerzak <rmerzak@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 12:17:12 by rmerzak           #+#    #+#             */
-/*   Updated: 2023/04/15 22:38:54 by rmerzak          ###   ########.fr       */
+/*   Updated: 2023/04/16 14:20:05 by rmerzak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,13 +114,12 @@ void Server::runServer(void) {
                     // handle new connection
                     struct sockaddr_in clientAddr;
                     socklen_t clientAddrLen = sizeof(clientAddr);
-                    int clientSocket_fd = accept(serverSocket_fd, (struct sockaddr *)&clientAddr, &clientAddrLen);
-                    if (clientSocket_fd == -1) {
+                    int newClientSocket_fd = accept(serverSocket_fd, (struct sockaddr *)&clientAddr, &clientAddrLen);
+                    if (newClientSocket_fd == -1) {
                         perror("Error server Side : accept");
-                    } else {
-                        std::cout<<"New connection from "<<inet_ntoa(clientAddr.sin_addr)<<":"<<ntohs(clientAddr.sin_port)<<std::endl;
-                        poolFdClients.push_back({clientSocket_fd, POLLIN, 0});
                     }
+                    // the first phase of client registation is the accept and store new connection from accept function
+                    this->acceptAndStoreNewClient(newClientSocket_fd, clientAddr);
                 } else {
                 // handle incoming data from a client
                     this->recvMsg(it->fd);
@@ -175,4 +174,25 @@ void Server::sendMsg(int fd, std::string msg) {
         close(fd);
         // must remove the clientfd from the pool of clients
     }
+}
+
+void Server::acceptAndStoreNewClient(int newClient_fd, sockaddr_in clientAddr) {
+    // handling the new pollfd client
+    pollfd newPollfd;
+    memset(&newPollfd, 0, sizeof(newPollfd));
+    newPollfd.events = POLLIN | POLLOUT;
+    newPollfd.fd = newClient_fd;
+    this->poolFdClients.push_back(newPollfd);
+    //check if the size of the pool of clients is greater than the max number of clients
+    if(this->poolFdClients.size() > MAX_CLIENTS) {
+        // close the connection
+        close(newClient_fd);
+        return;
+    }
+    // handling the new client
+    Client newClient(newClient_fd);
+    std::string hostname = inet_ntoa(clientAddr.sin_addr);
+    newClient.setHostname(hostname);
+    newClient.printClientInfo();
+    this->connectedClientsToIrcServer.insert(std::pair<int, Client>(newClient_fd, newClient));
 }

@@ -6,7 +6,7 @@
 /*   By: rmerzak <rmerzak@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 13:40:54 by rmerzak           #+#    #+#             */
-/*   Updated: 2023/04/15 22:44:20 by rmerzak          ###   ########.fr       */
+/*   Updated: 2023/04/16 13:44:33 by rmerzak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 #include <fcntl.h>
 #include <netinet/tcp.h>
 #include <iostream>
+#include <map>
 #define MAX_CLIENTS 10
 #define MAX_MSG_SIZE 512
 

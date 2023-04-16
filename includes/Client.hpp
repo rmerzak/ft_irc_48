@@ -6,7 +6,7 @@
 /*   By: rmerzak <rmerzak@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 12:16:49 by rmerzak           #+#    #+#             */
-/*   Updated: 2023/04/15 23:28:54 by rmerzak          ###   ########.fr       */
+/*   Updated: 2023/04/16 14:00:03 by rmerzak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,4 +36,7 @@ public:
     std::string getRealname(void);
     std::string getHostname(void);
     int getClientSocket_fd(void);
+
+    // function for debuging
+    void printClientInfo(void);
 };
