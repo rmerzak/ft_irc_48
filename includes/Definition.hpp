@@ -6,7 +6,7 @@
 /*   By: rmerzak <rmerzak@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 13:40:54 by rmerzak           #+#    #+#             */
-/*   Updated: 2023/04/16 13:44:33 by rmerzak          ###   ########.fr       */
+/*   Updated: 2023/04/16 14:40:29 by rmerzak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,4 +41,3 @@
 #define BIND_EXCEPTION THROW_EXCEPTION("Failed to bind socket to address and port")
 #define LISTEN_EXCEPTION THROW_EXCEPTION("Failed to start listening on socket.")
 #define GETADDRINFO_EXCEPTION THROW_EXCEPTION("Failed to get address info.")
-#define GetAddrInfoException THROW_EXCEPTION("Failed to get address info.")

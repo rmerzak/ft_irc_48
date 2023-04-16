@@ -6,7 +6,7 @@
 /*   By: rmerzak <rmerzak@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 12:17:12 by rmerzak           #+#    #+#             */
-/*   Updated: 2023/04/16 14:20:05 by rmerzak          ###   ########.fr       */
+/*   Updated: 2023/04/16 23:04:11 by rmerzak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,8 +107,9 @@ void Server::runServer(void) {
             perror("Error server Side : poll");
             return;
         }
+        int eventsHandled = 0;
          // Iterate over the pollfd vector and handle events on the sockets
-        for (auto it = poolFdClients.begin(); it != poolFdClients.end() && pollResult > 0; ) {
+        for (auto it = poolFdClients.begin(); it != poolFdClients.end() && eventsHandled < pollResult; ) {
             if (it->revents & POLLIN) {
                 if (it->fd == serverSocket_fd) {
                     // handle new connection
@@ -120,24 +121,27 @@ void Server::runServer(void) {
                     }
                     // the first phase of client registation is the accept and store new connection from accept function
                     this->acceptAndStoreNewClient(newClientSocket_fd, clientAddr);
-                } else {
-                // handle incoming data from a client
-                    this->recvMsg(it->fd);
                 }
-                pollResult--;
+                eventsHandled++;
+            }
+            if(it->revents == POLLIN && it->fd != serverSocket_fd) {
+                // handle incoming data from a client
+                this->recvMsg(it->fd);
+                eventsHandled++;
+                break;
             }
             if (it->revents & POLLOUT) {
                 // handle outgoing data to a client
                 this->sendMsg(it->fd, "Hello from server");
                 it->events &= ~POLLOUT;
-                pollResult--;
+                eventsHandled++;
             }
             if(it->revents & POLLERR || it->revents & POLLHUP) {
                 // handle disconnection
                 printf("Client disconnected");
                 close(it->fd);
                 it = poolFdClients.erase(it);
-                pollResult--;
+                eventsHandled++;
             } else {
                 it++;
             }
@@ -149,8 +153,9 @@ void Server::runServer(void) {
 // implement the recvMsg function
 
 void Server::recvMsg(int fd) {
-    char buffer[MAX_MSG_SIZE];
-    int recvResult = recv(fd, buffer, MAX_MSG_SIZE, 0);
+    char * buffer =(char *)malloc(sizeof(char)*MAX_MSG_SIZE);
+    Client client = connectedClientsToIrcServer[fd];
+    int recvResult = recv(client.getClientSocket_fd(), buffer, MAX_MSG_SIZE, 0);
     if(recvResult <= 0) {
         if (recvResult==0)
             std::cout << "Connection closed by client" << std::endl;
@@ -160,7 +165,10 @@ void Server::recvMsg(int fd) {
     //must remove the clientfd from the pool of clients
     //poolFdClients.erase(std::remove(poolFdClients.begin(), poolFdClients.end(), fd), poolFdClients.end());
     } else {
-        std::cout << "Received message from client " << fd << ": " << buffer << std::endl;
+        //strtok(buffer, "\r\n");
+        std::cout << "recvResult : "<< recvResult << std::endl;
+        std::cout << "Received message from client " << fd << ": " << "[" << buffer  << "]"<< std::endl;
+        bzero(buffer, MAX_MSG_SIZE);
         poolFdClients[fd].events |= POLLOUT;
     }
 }
@@ -180,7 +188,7 @@ void Server::acceptAndStoreNewClient(int newClient_fd, sockaddr_in clientAddr) {
     // handling the new pollfd client
     pollfd newPollfd;
     memset(&newPollfd, 0, sizeof(newPollfd));
-    newPollfd.events = POLLIN | POLLOUT;
+    newPollfd.events = POLLIN;
     newPollfd.fd = newClient_fd;
     this->poolFdClients.push_back(newPollfd);
     //check if the size of the pool of clients is greater than the max number of clients
