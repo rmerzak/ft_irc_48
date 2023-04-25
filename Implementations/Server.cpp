@@ -6,7 +6,7 @@
 /*   By: rmerzak <rmerzak@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 12:17:12 by rmerzak           #+#    #+#             */
-/*   Updated: 2023/04/25 18:38:07 by rmerzak          ###   ########.fr       */
+/*   Updated: 2023/04/25 19:05:47 by rmerzak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ void Server::runServer(void) {
     printf("Server is running on port %d\n", this->port);
     while(true) {
         // poll the pool of clients
-        int pollResult = poll(poolFdClients.data(), poolFdClients.size(), -1);
+        int pollResult = poll(&poolFdClients.front(), poolFdClients.size(), -1);
         if(pollResult == -1) {
             perror("Error server Side : poll");
             return;
@@ -154,6 +154,7 @@ void Server::runServer(void) {
 
 void Server::recvMsg(int fd) {
     char * buffer =(char *)malloc(sizeof(char)*MAX_MSG_SIZE);
+    std::string	input;
     Client client = connectedClientsToIrcServer[fd];
     int recvResult = recv(client.getClientSocket_fd(), buffer, MAX_MSG_SIZE, 0);
     if(recvResult <= 0) {
@@ -165,9 +166,12 @@ void Server::recvMsg(int fd) {
     //must remove the clientfd from the pool of clients
     //poolFdClients.erase(std::remove(poolFdClients.begin(), poolFdClients.end(), fd), poolFdClients.end());
     } else {
-        //strtok(buffer, "\r\n");
-        std::cout << "recvResult : "<< recvResult << std::endl;
-        std::cout << "Received message from client " << fd << ": " << "[" << buffer  << "]"<< std::endl;
+        buffer[recvResult] = '\0';
+        std::cout << " after recvResult : "<< recvResult <<std::endl;
+        if (recvResult != 2)
+            input = strtok(buffer, "\r\n");
+        std::cout << "recvResult : "<< recvResult <<" sizeof " << sizeof(buffer) << std::endl;
+        std::cout << "Received message from client " << fd << ": " << "[" << input  << "]"<< std::endl;
         bzero(buffer, MAX_MSG_SIZE);
         poolFdClients[fd].events |= POLLOUT;
     }
