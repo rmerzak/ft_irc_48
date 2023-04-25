@@ -6,7 +6,7 @@
 /*   By: rmerzak <rmerzak@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 12:17:12 by rmerzak           #+#    #+#             */
-/*   Updated: 2023/04/16 23:04:11 by rmerzak          ###   ########.fr       */
+/*   Updated: 2023/04/25 18:38:07 by rmerzak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,8 +127,8 @@ void Server::runServer(void) {
             if(it->revents == POLLIN && it->fd != serverSocket_fd) {
                 // handle incoming data from a client
                 this->recvMsg(it->fd);
+                it->revents = 0;
                 eventsHandled++;
-                break;
             }
             if (it->revents & POLLOUT) {
                 // handle outgoing data to a client
