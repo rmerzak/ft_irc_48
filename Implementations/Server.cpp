@@ -6,7 +6,7 @@
 /*   By: rmerzak <rmerzak@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 12:17:12 by rmerzak           #+#    #+#             */
-/*   Updated: 2023/04/25 19:05:47 by rmerzak          ###   ########.fr       */
+/*   Updated: 2023/04/25 19:48:07 by rmerzak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,33 +94,35 @@ int Server::initServer() {
 
 void Server::runServer(void) {
     // init the server
-
+    pollfd t;
+    t.events = POLLIN;
+    t.revents = 0;
     int serverSocket_fd = this->initServer();
-    poolFdClients.push_back({serverSocket_fd, POLLIN , 0});
+    t.fd =  serverSocket_fd;
+    poolFdClients.push_back(t);
     printf("%d \n",serverSocket_fd);
 
     printf("Server is running on port %d\n", this->port);
     while(true) {
         // poll the pool of clients
-        int pollResult = poll(&poolFdClients.front(), poolFdClients.size(), -1);
+        int pollResult = poll(poolFdClients.data(), poolFdClients.size(), -1);
         if(pollResult == -1) {
             perror("Error server Side : poll");
             return;
         }
         int eventsHandled = 0;
          // Iterate over the pollfd vector and handle events on the sockets
-        for (auto it = poolFdClients.begin(); it != poolFdClients.end() && eventsHandled < pollResult; ) {
+        for (std::vector<pollfd>::iterator it = poolFdClients.begin(); it != poolFdClients.end() && eventsHandled < pollResult; ) {
             if (it->revents & POLLIN) {
                 if (it->fd == serverSocket_fd) {
                     // handle new connection
                     struct sockaddr_in clientAddr;
                     socklen_t clientAddrLen = sizeof(clientAddr);
                     int newClientSocket_fd = accept(serverSocket_fd, (struct sockaddr *)&clientAddr, &clientAddrLen);
-                    if (newClientSocket_fd == -1) {
+                    if (newClientSocket_fd == -1)
                         perror("Error server Side : accept");
-                    }
-                    // the first phase of client registation is the accept and store new connection from accept function
-                    this->acceptAndStoreNewClient(newClientSocket_fd, clientAddr);
+                    else
+                        this->acceptAndStoreNewClient(newClientSocket_fd, clientAddr);
                 }
                 eventsHandled++;
             }
@@ -167,7 +169,6 @@ void Server::recvMsg(int fd) {
     //poolFdClients.erase(std::remove(poolFdClients.begin(), poolFdClients.end(), fd), poolFdClients.end());
     } else {
         buffer[recvResult] = '\0';
-        std::cout << " after recvResult : "<< recvResult <<std::endl;
         if (recvResult != 2)
             input = strtok(buffer, "\r\n");
         std::cout << "recvResult : "<< recvResult <<" sizeof " << sizeof(buffer) << std::endl;
